@@ -1711,6 +1711,8 @@ remoteClientFreePrivateCallbacks(struct daemonClientPrivate *priv)
     g_autoptr(virIdentity) sysident = virIdentityGetSystem();
     virIdentitySetCurrent(sysident);
 
+    virMutexLock(&priv->lock);
+
     DEREG_CB(priv->conn, priv->domainEventCallbacks,
              priv->ndomainEventCallbacks,
              virConnectDomainEventDeregisterAny, "domain");
@@ -1737,6 +1739,8 @@ remoteClientFreePrivateCallbacks(struct daemonClientPrivate *priv)
     }
 
     virIdentitySetCurrent(NULL);
+
+    virMutexUnlock(&priv->lock);
 }
 #undef DEREG_CB
 
